@@ -1,0 +1,142 @@
+1. Get All Movies
+Endpoint: /api/movies
+Method: GET
+Description: Retrieve all movies in the watchlist.
+
+Sample Response:
+
+[
+  {
+    "id": 1,
+    "title": "Inception",
+    "director": "Christopher Nolan",
+    "year": 2010,
+    "watched": true
+  },
+  {
+    "id": 2,
+    "title": "3 Idiots",
+    "director": "Rajkumar Hirani",
+    "year": 2009,
+    "watched": false
+  }
+]
+
+
+
+2. Add a New Movie
+Endpoint: /api/movies
+Method: POST
+Description: Add a new movie to the watchlist.
+
+Request Body (JSON):
+
+{
+  "title": "The Matrix",
+  "director": "Lana Wachowski, Lilly Wachowski",
+  "year": 1999,
+  "watched": false
+}
+Sample Response:
+
+{
+  "id": 3,
+  "title": "The Matrix",
+  "director": "Lana Wachowski, Lilly Wachowski",
+  "year": 1999,
+  "watched": false
+}
+
+
+
+3. Update a Movie
+Endpoint: /api/movies/{movie_id}
+Method: PUT
+Description: Update details of an existing movie.
+
+Request Body (JSON):
+
+{
+  "title": "The Matrix Reloaded",
+  "director": "Lana Wachowski, Lilly Wachowski",
+  "year": 2003,
+  "watched": true
+}
+Sample Response:
+
+{
+  "message": "Movie updated"
+}
+
+
+
+4. Delete a Movie
+Endpoint: /api/movies/{movie_id}
+Method: DELETE
+Description: Delete a movie from the watchlist.
+
+Sample Response:
+
+{
+  "message": "Movie deleted"
+}
+
+
+
+5. Search for a Movie (OMDb Integration)
+Endpoint: /search-movie
+Method: GET
+Query Parameter: title (string, required)
+Description: Search for a movie by title using the OMDb API. Returns basic details if found.
+
+Sample Response (if found):
+
+{
+  "title": "Inception",
+  "director": "Christopher Nolan",
+  "year": "2010"
+}
+Sample Response (if not found):
+
+{
+  "error": "Movie not found"
+}
+
+
+
+6. AI Assistant (Ask About a Movie)
+Endpoint: /ai-assistant
+Method: POST
+Description: Ask a question about a movie in your watchlist. The AI will answer based on the movie details.
+
+Request Body (JSON):
+
+{
+  "movie": {
+    "id": 2,
+    "title": "3 Idiots",
+    "director": "Rajkumar Hirani",
+    "year": 2009,
+    "watched": false
+  },
+  "question": "Who are the main actors in this movie?"
+}
+Sample Response:
+
+{
+  "answer": "The main actors in '3 Idiots' are Aamir Khan, R. Madhavan, and Sharman Joshi."
+}
+
+
+
+
+Error Responses:
+
+If a movie is not found for update or delete:
+{ "detail": "Movie not found" }
+
+If OMDb search fails:
+{ "error": "Movie not found" }
+
+If AI assistant fails:
+{ "answer": "Sorry, I couldn't get an answer from the AI right now." }

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie Watchlist</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script>
+        async function searchMovie() {
+            const title = document.getElementById('searchTitle').value;
+            const res = await fetch(`/search-movie?title=${encodeURIComponent(title)}`);
+            const data = await res.json();
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById('title').value = data.title || '';
+                document.getElementById('director').value = data.director || '';
+                document.getElementById('year').value = data.year || '';
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container glass">
+        <h1>🎬 Movie Watchlist</h1>
+        <form method="post" action="/movies" class="glass form-glass">
+            <div class="search-row">
+                <input type="text" id="searchTitle" placeholder="Search movie title">
+                <button type="button" onclick="searchMovie()">🔍</button>
+            </div>
+            <div class="form-row">
+                <input type="text" id="title" name="title" placeholder="Title" required>
+                <input type="text" id="director" name="director" placeholder="Director">
+                <input type="number" id="year" name="year" placeholder="Year">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="watched"> Watched
+                </label>
+                <button type="submit" class="add-btn">Add Movie</button>
+            </div>
+        </form>
+        <h2>Your Watchlist</h2>
+        <div class="table-container glass">
+            <table>
+                <tr>
+                    <th>Title</th><th>Director</th><th>Year</th><th>Watched</th><th>Actions</th>
+                </tr>
+                {% for movie in movies %}
+                <tr>
+                    <form method="post" action="/movies/{{movie.id}}/update">
+                        <td><input type="text" name="title" value="{{movie.title}}" required></td>
+                        <td><input type="text" name="director" value="{{movie.director}}"></td>
+                        <td><input type="number" name="year" value="{{movie.year}}"></td>
+                        <td><input type="checkbox" name="watched" {% if movie.watched %}checked{% endif %}></td>
+                        <td>
+                            <button type="submit" class="update-btn">Update</button>
+                    </form>
+                    <form method="post" action="/movies/{{movie.id}}/delete" style="display:inline;">
+                        <button type="submit" class="delete-btn" onclick="return confirm('Delete this movie?')">Delete</button>
+                    </form>
+                        </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+
+<!-- Floating AI Assistant Button -->
+<button id="ai-assistant-btn" class="ai-fab">AI Assistant</button>
+
+<!-- AI Assistant Chat Window -->
+<div id="ai-chat-window" class="ai-chat-window glass" style="display:none;">
+    <div class="ai-chat-header">
+        <span>🎥 AI Movie Assistant</span>
+        <button id="ai-close-btn" class="ai-close-btn">&times;</button>
+    </div>
+    <div class="ai-chat-body" id="ai-chat-body">
+        <div class="ai-bot-msg">Which movie details do you want to know?</div>
+        <select id="ai-movie-select"></select>
+        <button id="ai-select-movie-btn" class="ai-action-btn">Select</button>
+    </div>
+    <div class="ai-chat-footer" id="ai-chat-footer" style="display:none;">
+        <input type="text" id="ai-user-input" placeholder="Ask about the movie...">
+        <button id="ai-send-btn" class="ai-action-btn">Send</button>
+    </div>
+</div>
+
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const fab = document.getElementById('ai-assistant-btn');
+        const chatWindow = document.getElementById('ai-chat-window');
+        const closeBtn = document.getElementById('ai-close-btn');
+        const movieSelect = document.getElementById('ai-movie-select');
+        const selectMovieBtn = document.getElementById('ai-select-movie-btn');
+        const chatBody = document.getElementById('ai-chat-body');
+        const chatFooter = document.getElementById('ai-chat-footer');
+        const userInput = document.getElementById('ai-user-input');
+        const sendBtn = document.getElementById('ai-send-btn');
+    
+        let selectedMovie = null;
+        let movies = [];
+    
+        // Show chat window
+        fab.onclick = () => {
+            chatWindow.style.display = 'flex';
+            fab.style.display = 'none';
+            loadMovies();
+        };
+    
+        // Close chat window
+        closeBtn.onclick = () => {
+            chatWindow.style.display = 'none';
+            fab.style.display = 'block';
+            resetChat();
+        };
+    
+        // Load movies from backend
+        function loadMovies() {
+            fetch('/api/movies')
+                .then(res => res.json())
+                .then(data => {
+                    movies = data;
+                    movieSelect.innerHTML = '';
+                    if (movies.length === 0) {
+                        movieSelect.innerHTML = '<option>No movies in watchlist</option>';
+                        selectMovieBtn.disabled = true;
+                    } else {
+                        movies.forEach(m => {
+                            const opt = document.createElement('option');
+                            opt.value = m.id;
+                            opt.textContent = `${m.title} (${m.year})`;
+                            movieSelect.appendChild(opt);
+                        });
+                        selectMovieBtn.disabled = false;
+                    }
+                });
+        }
+    
+        // When user selects a movie
+        selectMovieBtn.onclick = () => {
+            const movieId = movieSelect.value;
+            selectedMovie = movies.find(m => m.id == movieId);
+            if (!selectedMovie) return;
+            chatBody.innerHTML += `<div class="ai-bot-msg">You selected <b>${selectedMovie.title}</b>. Ask me anything about this movie!</div>`;
+            chatFooter.style.display = 'flex';
+            selectMovieBtn.disabled = true;
+            movieSelect.disabled = true;
+        };
+    
+        // Send user question to backend
+        sendBtn.onclick = sendUserQuestion;
+        userInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') sendUserQuestion();
+        });
+    
+        function sendUserQuestion() {
+            const question = userInput.value.trim();
+            if (!question || !selectedMovie) return;
+            chatBody.innerHTML += `<div class="ai-user-msg">${question}</div>`;
+            userInput.value = '';
+            chatBody.innerHTML += `<div class="ai-bot-msg" id="ai-bot-typing">Thinking...</div>`;
+            chatBody.scrollTop = chatBody.scrollHeight;
+    
+            fetch('/ai-assistant', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    movie: selectedMovie,
+                    question: question
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('ai-bot-typing').remove();
+                chatBody.innerHTML += `<div class="ai-bot-msg">${data.answer}</div>`;
+                chatBody.scrollTop = chatBody.scrollHeight;
+            })
+            .catch(() => {
+                document.getElementById('ai-bot-typing').remove();
+                chatBody.innerHTML += `<div class="ai-bot-msg">Sorry, something went wrong.</div>`;
+            });
+        }
+    
+        function resetChat() {
+            chatBody.innerHTML = `
+                <div class="ai-bot-msg">Which movie details do you want to know?</div>
+                <select id="ai-movie-select"></select>
+                <button id="ai-select-movie-btn" class="ai-action-btn">Select</button>
+            `;
+            chatFooter.style.display = 'none';
+            // Re-bind select button
+            document.getElementById('ai-select-movie-btn').onclick = selectMovieBtn.onclick;
+            document.getElementById('ai-movie-select').onchange = movieSelect.onchange;
+            loadMovies();
+            selectedMovie = null;
+        }
+    });
+    </script>
+
+
+
+
+
+
+
+
+
+
+</html>
