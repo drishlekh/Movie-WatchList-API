@@ -58,7 +58,7 @@ Start the FastAPI server with:
 
 API Overview
 ------------
-Uploaded as API-Documentation.txt 
+Uploaded as API_Documentation.txt in project folder
 
 
 MySQL Commands
