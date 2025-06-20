@@ -50,11 +50,10 @@ Running the App
 
 Start the FastAPI server with:
 
-Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`uvicorn main:app --reload`  
 
-*   Visit [http://localhost:8000](http://localhost:8000) in your browser to use the app.
-    
-*   Access the interactive API docs at [http://localhost:8000/docs](http://localhost:8000/docs) or use Postman.
+* uvicorn main:app --reload
+* Visit http://localhost:8000 in your browser to use the app.
+* Access the interactive API docs at http://localhost:8000/docs or use Postman.
     
 
 API Overview
@@ -71,3 +70,19 @@ API Overview
 *   **Search for a Movie (OMDb):**GET /search-movie?title=MovieTitleSearch for a movie by title using the OMDb API.
     
 *   **AI Assistant:**POST /ai-assistantAsk a question about a movie and get an AI-generated answer.Request body: movie (object), question (string).
+
+
+MySQL Commands
+---------------
+
+Open your MySQL command line or MySQL Workbench and log in as the root user (or any admin user).
+
+*   Create a new database called movie\_db by running:CREATE DATABASE movie\_db;
+    
+*   Create a new user named movie\_user with the password password123 by running:CREATE USER 'movie\_user'@'localhost' IDENTIFIED BY 'password123';
+    
+*   Give this user all privileges on the movie\_db database by running:GRANT ALL PRIVILEGES ON movie\_db.\* TO 'movie\_user'@'localhost';
+    
+*   Apply the changes by running:FLUSH PRIVILEGES;
+    
+*   You can now exit the MySQL prompt by typing:EXIT;
