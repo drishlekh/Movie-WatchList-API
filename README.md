@@ -58,18 +58,7 @@ Start the FastAPI server with:
 
 API Overview
 ------------
-
-*   **Get All Movies:**GET /api/moviesRetrieve all movies in the watchlist.
-    
-*   **Add a New Movie:**POST /api/moviesAdd a new movie to the watchlist.Request body: title, director, year, watched.
-    
-*   **Update a Movie:**PUT /api/movies/{movie\_id}Update details of an existing movie.Request body: title, director, year, watched.
-    
-*   **Delete a Movie:**DELETE /api/movies/{movie\_id}Delete a movie from the watchlist.
-    
-*   **Search for a Movie (OMDb):**GET /search-movie?title=MovieTitleSearch for a movie by title using the OMDb API.
-    
-*   **AI Assistant:**POST /ai-assistantAsk a question about a movie and get an AI-generated answer.Request body: movie (object), question (string).
+Uploaded as API-Documentation.txt 
 
 
 MySQL Commands
